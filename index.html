@@ -1,0 +1,2468 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <title>LIMO Clicker</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&amp;family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"> 
+  <style>
+#league-container {
+  position: absolute;
+  top: 60px;           /* move league container near top of screen */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  text-align: center;
+}
+
+.league-bar-container {
+    width: 100%;
+    height: 25px;
+    background: #333;
+    border-radius: 12px;
+    margin: 10px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.league-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease, background 0.5s ease;
+}
+
+.league-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 10px;
+  margin-bottom: 4px;
+}
+
+.league-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  color: white;
+}
+
+.league-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    object-fit: cover;
+}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      color: white;
+      background: black;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* ONLY CHANGE: Make tasks screen scrollable */
+    #tasks-screen {
+      justify-content: flex-start;
+      overflow-y: auto;
+      padding: 20px 0 100px 0;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+#counter {
+  font-size: 40px;
+  margin-bottom: 25px;
+  margin-top: 10px;  /* was -15px; this pulls it down a little */
+}
+
+    #tap-btn {
+      width: 200px;
+      height: 200px;
+      background: url('https://i.imgur.com/waUpxxR.png') no-repeat center;
+      background-size: contain;
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 0 5px 2px white;
+      animation: glowPulse 1.5s infinite ease-in-out;
+      transition: transform 0.1s;
+      position: relative;
+      top: -15px;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 60px 30px white; }
+      50% { box-shadow: 0 0 40px 20px white; }
+    }
+
+    #tap-btn:active {
+      transform: scale(0.95);
+    }
+
+    .plus-one {
+      position: absolute;
+      font-size: 18px;
+      color: white;
+      animation: floatUp 0.6s ease-out forwards;
+      pointer-events: none;
+      top: calc(50% - 30px);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -50px); }
+    }
+
+    /* ENERGY SYSTEM */
+    #energy-container {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #game-screen.active #energy-container {
+      display: flex;
+    }
+
+    #energy-emoji {
+      font-size: 24px;
+      margin-right: 5px;
+    }
+
+    #energy-bar {
+      flex-grow: 1;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #energy-fill {
+      height: 100%;
+      width: 100%;
+      background: gold;
+      border-radius: 10px;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    #energy-text {
+      font-size: 14px;
+      color: white;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .energy-empty #energy-fill {
+      background: #aaa !important;
+    }
+
+    #bottom-bar {
+      position: absolute;
+      bottom: 20px;
+      width: 90%;
+      height: 60px;
+      border: 2px solid white;
+      border-radius: 25px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: black;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .bar-option {
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      color: white;
+      transition: all 0.2s ease;
+    }
+
+    .bar-option:hover {
+      transform: scale(1.1);
+    }
+
+    .bar-option.active {
+      color: white;
+    }
+
+    .bar-option span {
+      display: block;
+      font-size: 24px;
+    }
+    .bar-option {
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      color: #a0a0a0;
+    }
+
+    .bar-option span {
+      display: block;
+      font-size: 24px;
+    }
+
+    .buy-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .upgrade-card {
+      border: 2px solid white;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      width: 300px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .upgrade-card span {
+      font-size: 50px;
+      margin-right: 15px;
+    }
+
+    .upgrade-info {
+      flex-grow: 1;
+    }
+
+    .upgrade-title {
+      font-size: 20px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .upgrade-cost {
+      font-size: 14px;
+      color: white;
+    }
+
+    /* TASK STYLES */
+    .task-card {
+      border: 2px solid white;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 15px 20px;
+      width: 300px;
+      margin-top: 15px;
+      position: relative;
+    }
+
+    .task-emoji {
+      font-size: 40px;
+      margin-right: 15px;
+      position: absolute;
+      top: 20px;
+    }
+
+    .task-content {
+      margin-left: 55px;
+    }
+
+    .task-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .task-status {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .verify-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+    }
+
+    .claim-btn {
+      background: #ffc107;
+      color: black;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+    }
+
+    .error-message {
+      background: rgba(255, 0, 0, 0.2);
+      color: #ff5555;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      text-align: center;
+      display: none;
+    }
+
+    #popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    #popup-overlay.active {
+      display: flex;
+    }
+
+    .popup-content {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 320px;
+      color: black;
+      position: relative;
+      animation: popupScale 0.3s ease-out;
+    }
+
+    @keyframes popupScale {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-content .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .popup-desc {
+      margin: 15px 0;
+      font-size: 14px;
+    }
+
+    .popup-buy {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
+      color: white;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    #loading-screen.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .claimed {
+      filter: grayscale(1);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .claimed .upgrade-cost {
+      background: gray;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    /* SETTINGS STYLES */
+    #settings-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      z-index: 50;
+    }
+    
+    #settings-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.imgur.com/1b5Dg5B.jpeg') no-repeat center/cover;
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 30px;
+}
+    
+    #settings-screen.active {
+      display: flex;
+    }
+    
+    .settings-header {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      color: white;
+      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+      margin-bottom: 30px;
+    }
+    
+    .settings-coin {
+      width: 100px;
+      height: 100px;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+    }
+    
+    .settings-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+      text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    }
+    
+    .settings-footer {
+      position: absolute;
+      bottom: 20px;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    }
+    
+    .settings-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 80%;
+      max-width: 300px;
+      margin: 15px 0;
+      font-family: 'Orbitron', sans-serif;
+      color: white;
+      text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    }
+    
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #333;
+      transition: .4s;
+      border-radius: 30px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #666;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+    
+    body.settings-open #bottom-bar {
+      display: none;
+    }
+.league-info-link {
+  font-size: 14px;
+  color: #4db8ff;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 60px;   /* pushes it DOWN from the top */
+  margin-bottom: 8px; /* space below it before icons */
+}
+
+#league-info-screen {
+  background: url('https://i.imgur.com/bf8NnwZ.jpeg') no-repeat center center/cover;
+  z-index: 1000;
+}
+
+.league-info-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  z-index: 1001;
+  text-shadow: 0 0 10px black;
+}
+.top-left-icon {
+  position: absolute;
+  top: -30px;   /* Moves it 30px higher from original (10px - 30px = -20px) */
+  left: 10px;
+  width: 120px;
+  height: auto;
+  z-index: 100;
+}
+  .upgrade-header-icon {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+}
+#upgrade-screen {
+  top: 0;
+  overflow-y: auto;
+  padding: 100px 0 120px 0; /* add top/bottom padding */
+}
+#settings-screen * {
+  font-family: Helvetica, sans-serif !important;
+  font-weight: bold !important;
+}
+  #lminer-reward-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex-direction: column;
+}
+
+.lminer-overlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.lminer-popup-box {
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid white;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 30px auto;
+  text-align: center;
+  color: white;
+  font-family: Helvetica, sans-serif;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.robot-emoji {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.popup-text {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.claim-btn {
+  background-color: white !important;
+  color : black !important;
+  border: 1px solid white;
+  border-radius: 12px;
+  padding: 12px 30px;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+  .top-left-icon {
+  position: absolute;
+  top: -25px;
+  left: 10px;
+  width: 115px;
+  height: auto;
+  z-index: 100;
+}
+  #airdrop-screen {
+background: url('https://i.imgur.com/3I9gz3X.png') no-repeat center center / cover;
+  z-index: 1000;
+  position: relative;
+  overflow: hidden;
+}
+
+.airdrop-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(to bottom, white, transparent);
+  opacity: 0.05;
+  z-index: 0;
+}
+
+.airdrop-icon {
+  width: 200px;
+  height: 200px;
+  margin-top: 150px;
+  z-index: 1;
+}
+
+.airdrop-title {
+  font-family: Helvetica, sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin-top: 20px;
+  z-index: 1;
+}
+
+.airdrop-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+  text-shadow: 0 0 10px black;
+}
+  .airdrop-header {
+  transform: translateY(-200px);
+  text-align: center;
+  z-index: 1;
+}
+.airdrop-learn-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 350px;
+  margin-left: -5px;
+  margin-top: 5px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  position: relative;
+  height: 70px; /* Lock height */
+}
+
+.learn-icon {
+  width: 60px;
+  height: 60px;
+  margin-right: 8px;
+  margin-top: -12px;
+  object-fit: contain;
+}
+
+.learn-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-grow: 1;
+  margin-top: 1px;
+}
+
+.learn-text {
+  font-family: Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.learn-subtext {
+  font-family: Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  color: gray;
+  margin-top: 2px;
+}
+.learn-arrow {
+  font-size: 22px;
+  color: gray;
+  margin-top: 2px;
+  margin-left: 10px;
+}
+  .airdrop-section-title {
+  font-family: Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  margin-left: -190px;
+  margin-bottom: 10px;
+  margin-top: 60px; /* space from the icon/title above */
+}
+  #tutorial-screen {
+  background: black;
+  z-index: 1000;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#tutorial-screen.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#tutorial-loading {
+  color: white;
+  font-size: 24px;
+  font-family: Helvetica, sans-serif;
+  padding-top: 50%;
+}
+
+#tutorial-content {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.tutorial-image {
+  width: 100%;
+  max-height: 75%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.tutorial-nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 20px;
+}
+
+.tutorial-btn {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+#tutorial-done {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  padding: 14px;
+  background: white;
+  color: black;
+  font-size: 18px;
+  font-family: Helvetica, sans-serif;
+  font-weight: bold;
+  border: none;
+  border-radius: 14px;
+  display: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+  @keyframes fall {
+  to {
+    transform: translateY(120vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+  #shop-icon {
+  position: fixed;
+  top: 20px;
+  right: 70px; /* adjust if needed */
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  z-index: 999;
+}
+  #shop-screen {
+  background: black;
+  overflow-y: auto;
+  padding: 100px 20px 60px 20px;
+  height: 100%;
+}
+
+.shop-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.shop-title {
+  font-family: Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 32px;
+  background: linear-gradient(to bottom, white, black);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.shop-subtitle {
+  color: white;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.shop-close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  z-index: 999;
+}
+
+.shop-section-title {
+  color: white;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: left;
+  margin-left: 10px;
+}
+
+.skin-card {
+  border: 1px solid white;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+
+  /* You control this width */
+  width: 320px; /* <- make it 340px, 400px, whatever you want */
+}
+
+.skin-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.skin-info {
+  flex-grow: 1;
+}
+
+.skin-title {
+  color: white;
+  font-weight: bold;
+}
+
+.skin-cost {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.skin-button {
+  background: white;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.skin-button.equipped {
+  background: #444;
+  color: #aaa;
+  pointer-events: none;
+}
+
+.limo-float {
+  position: absolute;
+  color: #00ff88;
+  font-weight: bold;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 9999;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-30px); }
+}
+  button:disabled {
+  color: gray !important;
+}
+  .completed-text {
+  color: gray; /* change this to any color you want */
+}
+  .completed-text {
+  color: gray !important;
+  font-weight: bold;
+}
+#rewards-screen {
+  background: black;
+  color: white;
+  text-align: center;
+  padding: 200px 20px 20px 20px;
+  overflow-y: auto;/* <-- THIS LINE YOU MISSED */
+  box-sizing: border-box;
+  padding-top: -60px;
+}
+
+.rewards-header {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.current-streak {
+  font-size: 18px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  justify-items: center;
+}
+
+.reward-cube {
+  background: black;
+  border: 2px solid white;
+  border-radius: 16px;
+  width: 120px;
+  height: 160px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.reward-emoji {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-top: 5px;
+  filter: brightness(1);
+  content: url('https://i.imgur.com/GCVqwNU.gif'); /* This forces the image */
+}
+
+.reward-day {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.reward-amount {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.reward-claim {
+  background: white;
+  color: black;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 8px;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.reward-claimed {
+  background: gray;
+  color: black;
+}
+
+.reward-waiting {
+  background: transparent;
+  color: gray;
+  border: 1px solid gray;
+}
+#wallet-screen {
+  background: black;
+  z-index: 1001; /* Higher than other screens */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+#wallet-screen.active {
+  display: flex;
+}
+
+.wallet-content {
+  margin-top: -40px; /* Pulls content up */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.wallet-gif {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.wallet-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.wallet-close-btn {
+  width: calc(100% - 40px); /* Full width minus side margins */
+  padding: 10px 20px; /* Reduced vertical padding (now 10px top/bottom) */
+  background: white;
+  color: black;
+  border: none;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+  font-size: 16px; /* Slightly smaller font */
+  text-align: center;
+  cursor: pointer;
+  border-radius: 12px; /* Smooth rounded corners */
+  margin: 20px; /* Even margins */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
+  /* Explicit height control */
+  height: auto;
+  min-height: 44px; /* Minimum for touch targets */
+  line-height: 1.2; /* Tighter text spacing */
+}
+  </style> 
+ </head> 
+ <body> <!-- Settings Button --> 
+  <img id="settings-btn" src="https://i.imgur.com/C0gexGa.png" alt="Settings" onclick="goToScreen('settings-screen')"> 
+  <img id="shop-icon" src="https://i.imgur.com/waUpxxR.png" onclick="goToShop()" alt="Shop"> 
+  <img id="rewards-icon" src="https://i.imgur.com/GCVqwNU.gif" onclick="goToRewards()" alt="Daily Rewards" style="width: 28px; height: 28px; position: fixed; top: 20px; right: 110px; cursor: pointer; z-index: 999;"> 
+  <div id="loading-screen"> 
+   <div class="loading-text">
+     Loading... 
+   </div> 
+  </div> 
+<div id="airdrop-screen" class="screen"> 
+  <div class="airdrop-close" onclick="closeAirdrop()">✕</div> 
+  <div class="airdrop-gradient"></div> 
+  <div class="airdrop-header"> 
+    <img src="https://i.imgur.com/waUpxxR.png" class="airdrop-icon" alt="Bronze Crypto"> 
+    <div class="airdrop-title">Airdrops</div> 
+    <div class="airdrop-section-title">What is limocoin?</div> 
+
+    <!-- Learn Card -->
+    <div class="airdrop-learn-card" onclick="goToTutorial()"> 
+      <img src="https://i.imgur.com/waUpxxR.png" class="learn-icon" alt="Icon"> 
+      <div class="learn-text-wrapper"> 
+        <div class="learn-text">Learn</div> 
+        <div class="learn-subtext">What is limocoin?</div> 
+      </div> 
+      <div class="learn-arrow">➔</div> 
+    </div>
+
+    <!-- Connect Wallet Card - Added right after Learn Card -->
+    <div class="airdrop-learn-card" onclick="goToWalletScreen()"> 
+      <img src="https://i.imgur.com/hxJd2J9.png" class="learn-icon" alt="Wallet Icon"> 
+      <div class="learn-text-wrapper"> 
+        <div class="learn-text">Connect Wallet</div> 
+        <div class="learn-subtext">Connect Your Phantom Wallet</div> 
+      </div> 
+      <div class="learn-arrow">➔</div> 
+    </div>
+  </div>
+</div> 
+  <div id="shop-screen" class="screen"> 
+   <div class="shop-header"> 
+    <div class="shop-title">
+      Cosmetics 
+    </div> 
+    <div class="shop-subtitle">
+      Upgrade your button's skin! 
+    </div> 
+    <div class="shop-close" onclick="goToGame()">
+      ✕ 
+    </div> 
+   </div> 
+   <div class="shop-section-title">
+     Button Skins 
+   </div> 
+   <div id="skin-list"></div> 
+  </div> 
+  <div id="game-screen" class="screen active"> 
+   <img src="https://i.imgur.com/mo6LGai.png" alt="Top Left Icon" class="top-left-icon"> 
+   <div id="league-container"> <!-- Blue link OUTSIDE of flex container --> 
+    <div class="league-info-link" onclick="goToLeagueInfo()">
+      What Are Leagues? 
+    </div> <!-- Flex container ONLY for the two icons --> 
+    <div class="league-labels"> 
+     <div class="league-label"> 
+      <img src="https://i.imgur.com/waUpxxR.png" class="league-icon current-league-icon"> <span class="current-league">Bronze</span> 
+     </div> 
+     <div class="league-label"> 
+      <img src="https://i.imgur.com/wGew5Dg.jpeg" class="league-icon next-league-icon"> <span class="next-league">Silver</span> 
+     </div> 
+    </div> 
+    <div class="league-bar-container"> 
+     <div class="league-bar"></div> 
+    </div> 
+   </div> 
+   <div id="counter">
+     0 $LIMO 
+   </div> <button id="tap-btn" onclick="tap()"></button> 
+   <div id="energy-container"> <span id="energy-emoji">⚡</span> 
+    <div id="energy-bar"> 
+     <div id="energy-fill"></div> 
+    </div> 
+    <div id="energy-text">
+      10000/10000 
+    </div> 
+   </div> 
+  </div> 
+  <div id="upgrade-screen" class="screen"> 
+   <img src="https://i.imgur.com/GsJd0j6.png" alt="Rocket" class="upgrade-header-icon"> 
+   <h2>Upgrades</h2> 
+   <div id="upgrade-counter" style="margin-bottom: 10px;">
+     0 $LIMO 
+   </div> 
+   <div class="upgrade-card" onclick="openUpgradePopup('tap')"> <span>⛏</span> 
+    <div class="upgrade-info"> 
+     <div class="upgrade-title">
+       Tap Upgrade 
+     </div> 
+     <div class="upgrade-cost">
+       10,000 per upgrade 
+     </div> 
+    </div> 
+   </div> 
+   <div class="upgrade-card" onclick="openUpgradePopup('charge')"> <span>⚡</span> 
+    <div class="upgrade-info"> 
+     <div class="upgrade-title">
+       Charge 
+     </div> 
+     <div class="upgrade-cost">
+       20,000 per upgrade 
+     </div> 
+    </div> 
+   </div> 
+   <div class="upgrade-card" onclick="openUpgradePopup('lminer')"> <span>🤖</span> 
+    <div class="upgrade-info"> 
+     <div class="upgrade-title">
+       L-Miner 
+     </div> 
+     <div class="upgrade-cost">
+       100,000 $LIMO 
+     </div> 
+    </div> 
+   </div> 
+   <div class="upgrade-card" id="supertap-upgrade" onclick="openUpgradePopup('supertap')"> <span>👆</span> 
+    <div class="upgrade-info"> 
+     <div class="upgrade-title">
+       Super Tap 
+     </div> 
+     <div class="upgrade-cost">
+       128,000 $LIMO 
+     </div> 
+    </div> 
+   </div> 
+   <div class="upgrade-card" onclick="openUpgradePopup('limorain')"> <span>🔥</span> 
+    <div class="upgrade-info"> 
+     <div class="upgrade-title">
+       $LIMO Rain 
+     </div> 
+     <div class="upgrade-cost">
+       256,000 $LIMO 
+     </div> 
+    </div> 
+   </div> 
+  </div> 
+  <div id="tasks-screen" class="screen"> 
+   <img src="https://i.imgur.com/waUpxxR.png" alt="LIMO Coin" style="width: 100px; margin-bottom: 10px;"> 
+   <h2 style="font-size: 26px;">Earn More $LIMO</h2> 
+   <div class="upgrade-card" id="joining-bonus" onclick="claimJoiningBonus()"> <span>🎁</span> 
+    <div class="upgrade-info"> 
+     <div class="upgrade-title">
+       Joining Bonus 
+     </div> 
+     <div class="upgrade-cost" id="claim-btn">
+       Claim 50,000 $LIMO 
+     </div> 
+    </div> 
+   </div> <!-- New Tasks --> 
+   <div class="task-card" id="task-100k"> <span class="task-emoji">💰</span> 
+    <div class="task-content"> 
+     <div class="task-title">
+       Earn 100,000 $LIMO 
+     </div> 
+     <div class="task-status">
+       Requirement: 100,000 $LIMO 
+     </div> 
+     <div class="error-message">
+       Balance less than Requirement 
+     </div> <button class="verify-btn" onclick="verifyTask('100k')">Verify</button> 
+    </div> 
+   </div> 
+   <div class="task-card" id="task-500k"> <span class="task-emoji">💰</span> 
+    <div class="task-content"> 
+     <div class="task-title">
+       Earn 500,000 $LIMO 
+     </div> 
+     <div class="task-status">
+       Requirement: 500,000 $LIMO 
+     </div> 
+     <div class="error-message">
+       Balance less than Requirement 
+     </div> <button class="verify-btn" onclick="verifyTask('500k')">Verify</button> 
+    </div> 
+   </div> 
+   <div class="task-card" id="task-1m"> <span class="task-emoji">💰</span> 
+    <div class="task-content"> 
+     <div class="task-title">
+       Earn 1,000,000 $LIMO 
+     </div> 
+     <div class="task-status">
+       Requirement: 1,000,000 $LIMO 
+     </div> 
+     <div class="error-message">
+       Balance less than Requirement 
+     </div> <button class="verify-btn" onclick="verifyTask('1m')">Verify</button> 
+    </div> 
+   </div> 
+   <div class="task-card" id="task-1000taps"> 
+    <img src="https://i.imgur.com/GRx6407.png" class="task-emoji" style="width: 40px; height: 40px; position: absolute; top: 15px; left: 15px;"> 
+    <div class="task-content"> 
+     <div class="task-title">
+       Tap 1,000 Times 
+     </div> 
+     <div class="task-status">
+       Requirement: 1,000 Taps 
+     </div> 
+     <div class="error-message">
+       Not enough taps yet 
+     </div> <button class="verify-btn" onclick="verifyTask('1000taps')">Verify</button> 
+    </div> 
+   </div> 
+   <div class="task-card" id="task-telegram"> 
+    <img src="https://i.imgur.com/EToyQBz.png" class="task-emoji" style="width: 40px; height: 40px; position: absolute; top: 15px; left: 15px;"> 
+    <div class="task-content"> 
+     <div class="task-title">
+       Join Telegram 
+     </div> 
+     <div class="task-status">
+       Click Verify to open Telegram 
+     </div> 
+     <div class="error-message">
+       Please visit the link to proceed 
+     </div> <button class="verify-btn" onclick="verifyTelegram()">Verify</button> 
+    </div> 
+   </div> 
+   <div class="task-card" id="task-twitter"> 
+    <img src="https://i.imgur.com/X0cmamD.png" class="task-emoji" style="width: 40px; height: 40px; position: absolute; top: 15px; left: 15px;"> 
+    <div class="task-content"> 
+     <div class="task-title">
+       Join Twitter 
+     </div> 
+     <div class="task-status">
+       Click Verify to open Twitter 
+     </div> 
+     <div class="error-message">
+       Please visit the link to proceed 
+     </div> <button class="verify-btn" onclick="verifyTwitter()">Verify</button> 
+    </div> 
+   </div> 
+  </div> 
+  <div id="league-info-screen" class="screen"> 
+   <div class="league-info-close" onclick="closeLeagueInfo()">
+     ✕ 
+   </div> 
+  </div> 
+  <div id="lminer-reward-popup" style="display: none;"> 
+   <div class="lminer-overlay"></div> 
+   <div class="lminer-popup-box"> 
+    <div class="robot-emoji">
+      🤖 
+    </div> 
+    <p class="popup-text">L-Miner earned you 300,000 $LIMO</p> <button class="claim-btn" onclick="claimLMiner()">Claim</button> 
+   </div> 
+  </div> 
+  <div id="popup-overlay"> 
+   <div class="popup-content"> 
+    <div class="close-btn" onclick="closePopup()">
+      ✕ 
+    </div> 
+    <div class="upgrade-card" id="popup-card"> <span id="popup-emoji">⛏</span> 
+     <div class="upgrade-info"> 
+      <div id="popup-title" class="upgrade-title">
+        Tap Upgrade 
+      </div> 
+      <div id="popup-cost" class="upgrade-cost">
+        10,000 per upgrade 
+      </div> 
+     </div> 
+    </div> 
+    <div id="popup-desc" class="popup-desc">
+      By purchasing this upgrade, each tap will earn you +1 more coin! 
+    </div> <button class="popup-buy" onclick="buyUpgrade()">Buy</button> 
+    <div id="upgrade-error" style="color: red; margin-top: 10px; display: none;">
+      Not enough coins! 
+    </div> 
+   </div> 
+  </div> 
+  <div id="bottom-bar"> 
+   <div class="bar-option" id="nav-game" onclick="goToGame()"> <span>⛏</span>Mining 
+   </div> 
+   <div class="bar-option" id="nav-upgrade" onclick="goToUpgrade()"> <span>🚀</span>Upgrade 
+   </div> 
+   <div class="bar-option" id="nav-tasks" onclick="goToTasks()"> <span>📦</span>Tasks 
+   </div> 
+   <div class="bar-option" id="nav-airdrop" onclick="goToAirdrop()"> <span><img src="https://i.imgur.com/waUpxxR.png" style="width: 24px; height: 24px;"></span>Airdrop 
+   </div> 
+  </div> <!-- Settings Panel --> 
+  <div id="settings-screen"> 
+   <div class="settings-close" onclick="closeSettings()">
+     ✕ 
+   </div> 
+   <div class="settings-header">
+     SETTINGS 
+   </div> 
+   <img class="settings-coin" src="https://i.imgur.com/waUpxxR.png" alt="LIMO Coin"> 
+   <div class="settings-item" style="margin-top:50px"> <span>animations</span> <label class="switch"> <input type="checkbox" id="animations-toggle" checked> <span class="slider"></span> </label> 
+   </div> 
+   <div class="settings-item"> <span>vibration</span> <label class="switch"> <input type="checkbox" id="vibration-toggle" checked> <span class="slider"></span> </label> 
+   </div> 
+   <div class="settings-footer">
+     2025 LIMO airdrop 
+   </div> 
+  </div> <!-- TUTORIAL SCREEN --> 
+  <div id="tutorial-screen" class="screen"> 
+   <div id="tutorial-loading">
+     Loading... 
+   </div> 
+   <div id="tutorial-content"> 
+    <img id="tutorial-image" src="" class="tutorial-image" alt="Tutorial Page"> 
+    <div class="tutorial-nav"> 
+     <img src="https://i.imgur.com/25JPbPC.png" id="tutorial-back" class="tutorial-btn"> 
+     <img src="https://i.imgur.com/1IikpqK.png" id="tutorial-next" class="tutorial-btn"> 
+    </div> <button id="tutorial-done">Got it!</button> 
+   </div> 
+  </div> 
+  <div id="rewards-screen" class="screen"> 
+   <div class="rewards-header">
+     Daily Rewards 
+   </div> 
+   <div class="current-streak"> <span style="font-size: 24px;">⭐</span> Current Streak: <span id="streak-count">0</span> Days 
+   </div> 
+   <div id="rewards-grid" class="rewards-grid"> <!-- Reward cubes will appear here --> 
+   </div> 
+  </div> 
+  <div id="wallet-screen" class="screen"> 
+   <div class="wallet-content"> 
+    <img src="https://i.imgur.com/jgMxwuV.gif" class="wallet-gif" alt="Wallet Animation"> 
+    <div class="wallet-text">
+      Coming soon fren! 
+    </div> 
+   </div> <button class="wallet-close-btn" onclick="closeWalletScreen()">okayyy... Got it</button> 
+  </div> 
+  <script>
+    // SETTINGS FUNCTIONS
+    function goToSettings() {
+  showLoading(300);
+  setTimeout(() => {
+    openSettings();
+  }, 300);
+}
+    function openSettings() {
+      document.body.classList.add('settings-open');
+      document.getElementById('settings-screen').classList.add('active');
+      document.getElementById('animations-toggle').checked = localStorage.getItem('animationsEnabled') !== 'false';
+      document.getElementById('vibration-toggle').checked = localStorage.getItem('vibrationEnabled') !== 'false';
+    }
+    
+function closeSettings() {
+  document.body.classList.remove('settings-open');
+  document.getElementById('settings-screen').classList.remove('active');
+  localStorage.setItem('animationsEnabled', document.getElementById('animations-toggle').checked);
+  localStorage.setItem('vibrationEnabled', document.getElementById('vibration-toggle').checked);
+
+  goToScreen('game-screen'); // or 'upgrade-screen', your choice
+}
+    
+    function vibrate() {
+      if (document.getElementById('vibration-toggle').checked && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
+    
+    if (localStorage.getItem('animationsEnabled') === null) {
+      localStorage.setItem('animationsEnabled', 'true');
+    }
+    if (localStorage.getItem('vibrationEnabled') === null) {
+      localStorage.setItem('vibrationEnabled', 'true');
+    }
+    
+    const originalTap = tap;
+    tap = function() {
+      vibrate();
+      originalTap();
+    }
+
+    // Game State
+    let coins = parseInt(localStorage.getItem('limocoins')) || 0;
+    let tapPower = parseInt(localStorage.getItem('tapPower')) || 1;
+    let totalTaps = parseInt(localStorage.getItem('totalTaps')) || 0;
+    if (localStorage.getItem('superTapUnlocked') === 'true') {
+  tapPower *= 5;
+  const card = document.getElementById('supertap-upgrade');
+  if (card) {
+    card.classList.add('claimed');
+    card.style.filter = 'grayscale(100%)';
+    card.style.pointerEvents = 'none';
+  }
+}
+    let chargeRate = parseInt(localStorage.getItem('chargeRate')) || 50;
+    let currentEnergy = parseInt(localStorage.getItem('currentEnergy')) || 10000;
+    const maxEnergy = 10000;
+    const claimedTasks = JSON.parse(localStorage.getItem('claimedTasks')) || [];
+const leagues = {
+    bronze: { min: 0, max: 50000, reward: 0, color: '#CD7F32', icon: 'https://i.imgur.com/waUpxxR.png' },
+    silver: { min: 50000, max: 100000, reward: 10000, color: '#C0C0C0', icon: 'https://i.imgur.com/wGew5Dg.jpeg' },
+    gold: { min: 100000, max: 500000, reward: 50000, color: '#FFD700', icon: 'https://i.imgur.com/JjQCGwN.jpeg' },
+    diamond: { min: 500000, max: 2000000, reward: 100000, color: '#B9F2FF', icon: 'https://i.imgur.com/mAwy35S.jpeg' },
+    obsidian: { min: 2000000, max: 10000000, reward: 500000, color: '#1B1B1B', icon: 'https://i.imgur.com/yvkKVyh.jpeg' },
+    ruby: { min: 10000000, max: 50000000, reward: 1000000, color: '#E0115F', icon: 'https://i.imgur.com/4VSRuaZ.jpeg' },
+    emerald: { min: 50000000, max: 100000000, reward: 10000000, color: '#50C878', icon: 'https://i.imgur.com/pJ73Faq.jpeg' }
+};
+
+let currentLeague = localStorage.getItem('currentLeague') || 'bronze';
+let claimedLeagues = JSON.parse(localStorage.getItem('claimedLeagues') || '[]');
+
+function updateLeagueProgress() {
+    const leagueBar = document.querySelector('.league-bar');
+    const currentLeagueLabel = document.querySelector('.current-league');
+    const nextLeagueLabel = document.querySelector('.next-league');
+    const currentLeagueIcon = document.querySelector('.current-league-icon');
+    const nextLeagueIcon = document.querySelector('.next-league-icon');
+    
+    let currentLeagueData = leagues[currentLeague];
+    let nextLeague = Object.keys(leagues)[Object.keys(leagues).indexOf(currentLeague) + 1];
+    let nextLeagueData = leagues[nextLeague];
+    
+    if (!nextLeagueData) return; // At max league
+    
+    let progress = (coins - currentLeagueData.min) / (currentLeagueData.max - currentLeagueData.min) * 100;
+    progress = Math.min(Math.max(progress, 0), 100);
+    
+    leagueBar.style.width = `${progress}%`;
+    leagueBar.style.background = `linear-gradient(to right, ${currentLeagueData.color}, ${nextLeagueData.color})`;
+    
+    currentLeagueLabel.textContent = currentLeague.charAt(0).toUpperCase() + currentLeague.slice(1);
+    nextLeagueLabel.textContent = nextLeague.charAt(0).toUpperCase() + nextLeague.slice(1);
+    
+    currentLeagueIcon.src = currentLeagueData.icon;
+    nextLeagueIcon.src = nextLeagueData.icon;
+    
+    document.getElementById('tap-btn').style.backgroundImage = `url(${currentLeagueData.icon})`;
+    
+    checkLeagueProgress();
+}
+
+function checkLeagueProgress() {
+    Object.entries(leagues).forEach(([league, data]) => {
+        if (coins >= data.min && !claimedLeagues.includes(league) && league !== 'bronze') {
+            claimLeagueReward(league, data.reward);
+        }
+        if (coins >= data.min && currentLeague !== league && 
+            Object.keys(leagues).indexOf(league) > Object.keys(leagues).indexOf(currentLeague)) {
+            currentLeague = league;
+            localStorage.setItem('currentLeague', currentLeague);
+        }
+    });
+}
+
+function claimLeagueReward(league, reward) {
+    coins += reward;
+    claimedLeagues.push(league);
+    localStorage.setItem('claimedLeagues', JSON.stringify(claimedLeagues));
+    
+    alert(`Congratulations! You've reached ${league.toUpperCase()} league!\nReward: ${reward.toLocaleString()} $LIMO`);
+    
+    updateCounter();
+}
+
+    // DOM Elements
+    const counter = document.getElementById('counter');
+    const upgradeCounter = document.getElementById('upgrade-counter');
+    const popup = document.getElementById('popup-overlay');
+    const errorText = document.getElementById('upgrade-error');
+    const loadingScreen = document.getElementById('loading-screen');
+    const energyFill = document.getElementById('energy-fill');
+    const energyText = document.getElementById('energy-text');
+    const energyContainer = document.getElementById('energy-container');
+
+    // Popup Elements
+    const popupTitle = document.getElementById('popup-title');
+    const popupCost = document.getElementById('popup-cost');
+    const popupDesc = document.getElementById('popup-desc');
+    const popupEmoji = document.getElementById('popup-emoji');
+    let currentUpgradeType = 'tap';
+
+    // Energy System
+    function updateEnergy() {
+      const percentage = (currentEnergy / maxEnergy) * 100;
+      energyFill.style.width = `${percentage}%`;
+      energyText.textContent = `${currentEnergy}/${maxEnergy}`;
+      localStorage.setItem('currentEnergy', currentEnergy);
+      
+      if (currentEnergy <= 0) {
+        energyContainer.classList.add('energy-empty');
+      } else {
+        energyContainer.classList.remove('energy-empty');
+      }
+    }
+
+    function rechargeEnergy() {
+      if (currentEnergy < maxEnergy) {
+        currentEnergy = Math.min(maxEnergy, currentEnergy + chargeRate);
+        updateEnergy();
+      }
+      setTimeout(rechargeEnergy, 1000);
+    }
+
+    // Tap System
+function tap() {
+  if (!isLimoRainActive) {
+    if (currentEnergy <= 0) {
+      alert("Out of energy! Wait for recharge.");
+      return;
+    }
+
+    currentEnergy = Math.max(0, currentEnergy - tapPower);
+    updateEnergy();
+  }
+
+  coins += tapPower;
+  totalTaps++;
+localStorage.setItem('totalTaps', totalTaps);
+  updateCounter();
+
+  // Tap animation
+  const pop = document.createElement('div');
+  pop.className = 'plus-one';
+  pop.textContent = `+${tapPower}`;
+  pop.style.left = '50%';
+  pop.style.top = 'calc(50% - 30px)';
+  pop.style.transform = 'translate(-50%, -50%)';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 600);
+}
+
+    // Upgrade System
+function openUpgradePopup(type) {
+  currentUpgradeType = type;
+
+  if (type === 'tap') {
+    popupTitle.textContent = "Tap Upgrade";
+    popupCost.textContent = "10,000 per upgrade";
+    popupDesc.textContent = "Each tap will earn you +1 more coin!";
+    popupEmoji.textContent = "⛏";
+    document.querySelector('.popup-buy').setAttribute('onclick', "buyUpgrade()");
+  } else if (type === 'charge') {
+    popupTitle.textContent = "Charge";
+    popupCost.textContent = "20,000 per upgrade";
+    popupDesc.textContent = "Energy recharges 50+ faster per second!";
+    popupEmoji.textContent = "⚡";
+    document.querySelector('.popup-buy').setAttribute('onclick', "buyUpgrade()");
+  } else if (type === 'lminer') {
+    popupTitle.textContent = "L-Miner";
+    popupCost.textContent = "Cost: 100,000 $LIMO";
+    popupDesc.textContent = "Have a robot mine for you effortlessly. Every 3 hours you'll need to log back in to claim your reward and restart the miner.";
+    popupEmoji.textContent = "🤖";
+    document.querySelector('.popup-buy').setAttribute('onclick', "buyLMiner()");
+  } else if (type === 'supertap') {
+    popupTitle.textContent = "Super Tap";
+    popupCost.textContent = "Cost: 128,000 $LIMO";
+    popupDesc.textContent = "By purchasing this your tapping will 5X!";
+    popupEmoji.textContent = "👆";
+    document.querySelector('.popup-buy').setAttribute('onclick', "buySuperTap()");
+  } else if (type === 'limorain') {
+    popupTitle.textContent = "$LIMO Rain";
+    popupCost.textContent = "Cost: 256,000 $LIMO";
+    popupDesc.textContent = "By purchasing this, for 20 seconds your tapping will 100x. Tap as many times as you can!";
+    popupEmoji.textContent = "🔥";
+    document.querySelector('.popup-buy').setAttribute('onclick', "buyLimoRain()");
+  }
+
+  popup.classList.add('active');
+  errorText.style.display = 'none';
+}
+    function buyUpgrade() {
+      const cost = currentUpgradeType === 'tap' ? 10000 : 20000;
+      
+      if (coins >= cost) {
+        coins -= cost;
+        
+        if (currentUpgradeType === 'tap') {
+          tapPower += 1;
+          localStorage.setItem('tapPower', tapPower);
+        } else {
+          chargeRate += 50;
+          localStorage.setItem('chargeRate', chargeRate);
+        }
+        
+        updateCounter();
+        closePopup();
+      } else {
+        errorText.style.display = 'block';
+      }
+    }
+
+    function closePopup() {
+      popup.classList.remove('active');
+    }
+
+    function buySuperTap() {
+  if (localStorage.getItem('superTapUnlocked') === 'true') return;
+
+  if (coins >= 128000) {
+    coins -= 128000;
+    tapPower *= 5;
+    localStorage.setItem('superTapUnlocked', 'true');
+    localStorage.setItem('tapPower', tapPower);
+    updateCounter();
+
+    const card = document.getElementById('supertap-upgrade');
+    if (card) {
+      card.classList.add('claimed');
+      card.style.filter = 'grayscale(100%)';
+      card.style.pointerEvents = 'none';
+    }
+
+    closePopup();
+  } else {
+    errorText.textContent = "Not enough $LIMO!";
+    errorText.style.display = 'block';
+  }
+}
+    function buyLimoRain() {
+  if (coins >= 256000) {
+    coins -= 256000;
+    updateCounter();
+    closePopup();
+
+    // Show loading then go to mining screen and start the boost
+    showLoading(500);
+    setTimeout(() => {
+      goToGame(); // switch to mining screen
+      activateLimoRain(); // start the boost
+    }, 500);
+  } else {
+    errorText.textContent = "Not enough $LIMO!";
+    errorText.style.display = 'block';
+  }
+}
+    let isLimoRainActive = false;
+
+function activateLimoRain() {
+  isLimoRainActive = true;
+  const originalTapPower = tapPower;
+  tapPower *= 100;
+
+  startCoinRain();
+
+  setTimeout(() => {
+    tapPower = originalTapPower;
+    isLimoRainActive = false;
+    stopCoinRain();
+  }, 20000); // 20 seconds
+}
+
+function startCoinRain() {
+  const iconUrl = leagues[currentLeague].icon;
+  const rainContainer = document.createElement('div');
+  rainContainer.id = "coin-rain";
+  rainContainer.style.position = 'fixed';
+  rainContainer.style.top = '0';
+  rainContainer.style.left = '0';
+  rainContainer.style.width = '100%';
+  rainContainer.style.height = '100%';
+  rainContainer.style.zIndex = '0'; // behind everything
+  rainContainer.style.pointerEvents = 'none';
+  document.body.appendChild(rainContainer);
+
+  let interval = setInterval(() => {
+    const coin = document.createElement('img');
+    coin.src = iconUrl;
+    coin.style.position = 'absolute';
+    coin.style.left = Math.random() * 100 + '%';
+    coin.style.top = '-40px';
+    coin.style.width = '30px';
+    coin.style.height = '30px';
+    coin.style.opacity = '0.85';
+    coin.style.animation = 'fall 2s linear forwards';
+    rainContainer.appendChild(coin);
+    setTimeout(() => coin.remove(), 2000);
+  }, 120);
+
+  rainContainer.dataset.interval = interval;
+}
+
+function stopCoinRain() {
+  const rainContainer = document.getElementById('coin-rain');
+  if (rainContainer) {
+    clearInterval(rainContainer.dataset.interval);
+    rainContainer.remove();
+  }
+}
+    
+    // Joining Bonus
+    function claimJoiningBonus() {
+      if (localStorage.getItem('bonusClaimed')) return;
+
+      coins += 50000;
+      updateCounter();
+
+      const pop = document.createElement('div');
+      pop.className = 'plus-one';
+      pop.textContent = `+50000`;
+      pop.style.left = '50%';
+      pop.style.top = 'calc(40% - 15px)';
+      pop.style.transform = 'translate(-50%, -50%)';
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 600);
+
+      localStorage.setItem('bonusClaimed', 'true');
+      markBonusClaimed();
+    }
+
+    function markBonusClaimed() {
+      const card = document.getElementById('joining-bonus');
+      const btn = document.getElementById('claim-btn');
+      card.classList.add('claimed');
+      btn.textContent = "Claimed";
+    }
+
+    // Task System
+    function verifyTask(taskId) {
+      const taskElement = document.getElementById(`task-${taskId}`);
+      const errorMsg = taskElement.querySelector('.error-message');
+      const verifyBtn = taskElement.querySelector('.verify-btn');
+      const requiredAmount = getRequiredAmount(taskId);
+      if (taskId === '1000taps') {
+  if (claimedTasks.includes(taskId)) {
+    errorMsg.textContent = "Already claimed!";
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  if (totalTaps >= 1000) {
+    verifyBtn.textContent = "Claim";
+    verifyBtn.className = "claim-btn";
+    verifyBtn.onclick = function() { claimTask(taskId); };
+    errorMsg.style.display = 'none';
+  } else {
+    errorMsg.textContent = `Not enough taps (Need 1,000)`;
+    errorMsg.style.display = 'block';
+  }
+  return;
+}
+      
+      if (claimedTasks.includes(taskId)) {
+        errorMsg.textContent = "Already claimed!";
+        errorMsg.style.display = 'block';
+        return;
+      }
+      
+      if (coins >= requiredAmount) {
+        // Change to claim button
+        verifyBtn.textContent = "Claim";
+        verifyBtn.className = "claim-btn";
+        verifyBtn.onclick = function() { claimTask(taskId); };
+        errorMsg.style.display = 'none';
+      } else {
+        errorMsg.textContent = `Balance less than Requirement (Need ${requiredAmount.toLocaleString()} $LIMO)`;
+        errorMsg.style.display = 'block';
+      }
+    }
+
+    function claimTask(taskId) {
+      if (claimedTasks.includes(taskId)) return;
+      
+      const reward = getTaskReward(taskId);
+      coins += reward;
+      claimedTasks.push(taskId);
+      localStorage.setItem('claimedTasks', JSON.stringify(claimedTasks));
+      localStorage.setItem('limocoins', coins);
+      
+      updateCounter();
+      
+      const taskElement = document.getElementById(`task-${taskId}`);
+      const verifyBtn = taskElement.querySelector('.claim-btn');
+      const statusText = taskElement.querySelector('.task-status');
+      
+      verifyBtn.textContent = "Claimed";
+      verifyBtn.style.backgroundColor = "#28a745";
+      verifyBtn.onclick = null;
+      statusText.textContent = "Completed!";
+      statusText.style.color = "#4CAF50";
+      
+      // Show reward animation
+      const pop = document.createElement('div');
+      pop.className = 'plus-one';
+      pop.textContent = `+${reward.toLocaleString()}`;
+      pop.style.left = '50%';
+      pop.style.top = '40%';
+      pop.style.transform = 'translate(-50%, -50%)';
+      pop.style.fontSize = '24px';
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 1000);
+    }
+
+    function verifyTelegram() {
+  const taskId = 'telegram';
+  const taskElement = document.getElementById('task-telegram');
+  if (!taskElement) return;
+
+  const errorMsg = taskElement.querySelector('.error-message');
+  const verifyBtn = taskElement.querySelector('.verify-btn');
+
+  // Open Telegram
+  window.location.href = 'https://t.me/limocoinbot';
+
+  // Save visit flag
+  localStorage.setItem('telegramVisited', 'true');
+
+  // After a moment, show Claim
+  setTimeout(() => {
+    if (!claimedTasks.includes(taskId)) {
+      verifyBtn.textContent = "Claim";
+      verifyBtn.className = "claim-btn";
+      verifyBtn.onclick = function() { claimTask(taskId); };
+      errorMsg.style.display = 'none';
+    }
+  }, 1000);
+}
+    function verifyTwitter() {
+  const taskId = 'twitter';
+  const taskElement = document.getElementById('task-twitter');
+  if (!taskElement) return;
+
+  const errorMsg = taskElement.querySelector('.error-message');
+  const verifyBtn = taskElement.querySelector('.verify-btn');
+
+  // Open Twitter link
+  window.location.href = 'https://x.com/limocoin_bot?s=09';
+
+  // Track visit
+  localStorage.setItem('twitterVisited', 'true');
+
+  // Convert to Claim button
+  setTimeout(() => {
+    if (!claimedTasks.includes(taskId)) {
+      verifyBtn.textContent = "Claim";
+      verifyBtn.className = "claim-btn";
+      verifyBtn.onclick = function () { claimTask(taskId); };
+      errorMsg.style.display = 'none';
+    }
+  }, 1000);
+}
+    function getRequiredAmount(taskId) {
+      switch(taskId) {
+        case '100k': return 100000;
+        case '500k': return 500000;
+        case '1m': return 1000000;
+        case '1000taps': return 1000;
+        default: return 0;
+      }
+    }
+
+    function getTaskReward(taskId) {
+      switch(taskId) {
+        case '100k': return 100000;
+        case '500k': return 500000;
+        case '1m': return 1000000;
+        case '1000taps': return 100000;
+        case 'telegram': return 100000;
+        case 'twitter': return 150000;
+        default: return 0;
+      }
+    }
+
+    function initializeTasks() {
+['100k', '500k', '1m', '1000taps', 'telegram', 'twitter'].forEach(taskId => {
+        if (claimedTasks.includes(taskId)) {
+          const taskElement = document.getElementById(`task-${taskId}`);
+          const verifyBtn = taskElement.querySelector('.verify-btn');
+          const statusText = taskElement.querySelector('.task-status');
+          
+          verifyBtn.textContent = "Claimed";
+          verifyBtn.className = "claim-btn";
+          verifyBtn.style.backgroundColor = "#28a745";
+          verifyBtn.onclick = null;
+          statusText.textContent = "Completed!";
+          statusText.style.color = "#4CAF50";
+        
+       }
+      });
+    if (localStorage.getItem('telegramVisited') === 'true' && !claimedTasks.includes('telegram')) {
+  const telegramCard = document.getElementById('task-telegram');
+  if (telegramCard) {
+    const btn = telegramCard.querySelector('.verify-btn');
+    const error = telegramCard.querySelector('.error-message');
+
+    btn.textContent = "Claim";
+    btn.className = "claim-btn";
+    btn.onclick = function() { claimTask('telegram'); };
+    error.style.display = 'none';
+  }
+}
+    if (localStorage.getItem('twitterVisited') === 'true' && !claimedTasks.includes('twitter')) {
+  const twitterCard = document.getElementById('task-twitter');
+  if (twitterCard) {
+    const btn = twitterCard.querySelector('.verify-btn');
+    const error = twitterCard.querySelector('.error-message');
+
+    btn.textContent = "Claim";
+    btn.className = "claim-btn";
+    btn.onclick = function () { claimTask('twitter'); };
+    error.style.display = 'none';
+  }
+}
+    }
+
+    // Navigation
+function goToScreen(screenId) {
+  showLoading(300);
+  setTimeout(() => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+
+    highlightNav(screenId); // highlight the correct nav option
+  }, 300);
+}
+
+    function highlightNav(screenId) {
+  const navMap = {
+    'game-screen': 'nav-game',
+    'upgrade-screen': 'nav-upgrade',
+    'tasks-screen': 'nav-tasks',
+    'airdrop-screen': 'nav-airdrop'
+  };
+
+  document.querySelectorAll('.bar-option').forEach(el => el.classList.remove('active'));
+
+  const navId = navMap[screenId];
+  if (navId) {
+    const activeBtn = document.getElementById(navId);
+    if (activeBtn) activeBtn.classList.add('active');
+  }
+}
+function goToGame() {
+  goToScreen('game-screen');
+
+  const navBar = document.getElementById('bottom-bar');
+  const settings = document.getElementById('settings-btn');
+  const shop = document.getElementById('shop-icon');
+  const rewards = document.getElementById('rewards-icon');
+
+  if (navBar) navBar.style.display = '';
+  if (settings) settings.style.display = '';
+  if (shop) shop.style.display = '';
+  if (rewards) rewards.style.display = '';
+}
+    const tutorialPages = [
+  "https://i.imgur.com/aD2ESgV.jpeg",
+  "https://i.imgur.com/9OrUlzd.jpeg",
+  "https://i.imgur.com/2hTTXkn.jpeg",
+  "https://i.imgur.com/mkWxJo8.jpeg"
+];
+
+let tutorialIndex = 0;
+
+function goToTutorial() {
+  goToScreen('tutorial-screen');
+  document.getElementById('tutorial-loading').style.display = 'block';
+  document.getElementById('tutorial-content').style.display = 'none';
+
+  setTimeout(() => {
+    tutorialIndex = 0;
+    showTutorialPage(tutorialIndex);
+    document.getElementById('tutorial-loading').style.display = 'none';
+    document.getElementById('tutorial-content').style.display = 'flex';
+  }, 2000);
+}
+
+function showTutorialPage(index) {
+  const img = document.getElementById('tutorial-image');
+
+  // Start faded out
+  img.style.opacity = 0;
+
+  // Switch the image
+  img.src = tutorialPages[index];
+
+  // Fade in after a short delay (works regardless of cache)
+  setTimeout(() => {
+    img.style.opacity = 1;
+  }, 100);
+
+  // Handle buttons
+  document.getElementById('tutorial-back').style.display = index === 0 ? 'none' : 'block';
+  document.getElementById('tutorial-next').style.display = index === tutorialPages.length - 1 ? 'none' : 'block';
+  document.getElementById('tutorial-done').style.display = index === tutorialPages.length - 1 ? 'block' : 'none';
+}
+    function goToUpgrade() { goToScreen('upgrade-screen'); }
+    function goToTasks() { goToScreen('tasks-screen'); }
+    function goToAirdrop() { goToScreen('airdrop-screen'); }
+    function goToRewards() { 
+  goToScreen('rewards-screen'); 
+}
+    function closeAirdrop() {
+  document.getElementById('airdrop-screen').classList.remove('active');
+  goToGame();
+}
+    
+    // Counter
+    function updateCounter() {
+    counter.textContent = coins.toLocaleString() + " $LIMO";
+    upgradeCounter.textContent = coins.toLocaleString() + " $LIMO";
+    localStorage.setItem('limocoins', coins);
+    updateLeagueProgress();
+}
+
+    // Loading
+    function showLoading(duration = 300) {
+      loadingScreen.classList.remove('hide');
+      setTimeout(() => {
+        loadingScreen.classList.add('hide');
+      }, duration);
+    }
+
+    function goToLeagueInfo() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('league-info-screen').classList.add('active');
+  document.getElementById('settings-btn').style.display = 'none';
+  document.getElementById('bottom-bar').style.display = 'none';
+}
+
+function closeLeagueInfo() {
+  document.getElementById('league-info-screen').classList.remove('active');
+  goToGame();
+  document.getElementById('settings-btn').style.display = 'block';
+  document.getElementById('bottom-bar').style.display = 'flex';
+}
+    
+    function buyLMiner() {
+  if (localStorage.getItem('lminerPurchased')) {
+    alert("L-Miner already purchased.");
+    return;
+  }
+
+  if (coins >= 100000) {
+    coins -= 100000;
+    localStorage.setItem('lminerPurchased', 'true');
+    localStorage.setItem('lminerStart', Date.now());
+    updateCounter();
+    alert("L-Miner started! It will mine every 3 hours.");
+  } else {
+    alert("You need 100,000 $LIMO to buy L-Miner.");
+  }
+}
+
+function checkLMiner() {
+  const start = localStorage.getItem('lminerStart');
+  if (!localStorage.getItem('lminerPurchased') || !start) return;
+
+  const now = Date.now();
+  if (now - parseInt(start) >= 3 * 60 * 60 * 1000) {
+    document.getElementById('lminer-reward-popup').style.display = 'flex';
+  }
+}
+
+function claimLMiner() {
+  showLoading(2000); // uses your existing loading system
+  setTimeout(() => {
+    coins += 300000;
+    updateCounter();
+    document.getElementById('lminer-reward-popup').style.display = 'none';
+    localStorage.setItem('lminerStart', Date.now()); // reset timer
+  }, 2000);
+}
+    // Initialize
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        loadingScreen.classList.add('hide');
+      }, 1000);
+
+      if (localStorage.getItem('bonusClaimed')) {
+        markBonusClaimed();
+      }
+
+      updateCounter();
+      updateEnergy();
+      updateTapIcon();
+      rechargeEnergy();
+      initializeTasks();
+      updateLeagueProgress();
+      checkLMiner();
+    });
+  // Back button logic (Android support)
+window.addEventListener("popstate", function () {
+  goToScreen('game-screen');
+});
+
+window.addEventListener("load", function () {
+  history.pushState({}, "");
+document.getElementById('tutorial-next').onclick = () => {
+  if (tutorialIndex < tutorialPages.length - 1) {
+    tutorialIndex++;
+    showTutorialPage(tutorialIndex);
+  }
+};
+
+document.getElementById('tutorial-back').onclick = () => {
+  if (tutorialIndex > 0) {
+    tutorialIndex--;
+    showTutorialPage(tutorialIndex);
+  }
+};
+
+document.getElementById('tutorial-done').onclick = () => {
+  goToGame();
+};
+});
+  const skins = [
+  { id: 'default', title: 'Default', icon: 'https://i.imgur.com/waUpxxR.png', cost: 0 },
+  { id: 'glitch', title: 'Glitch', icon: 'https://i.imgur.com/9NrLnwu.png', cost: 85000 },
+  { id: 'ice', title: 'Ice', icon: 'https://i.imgur.com/kSY3InZ.png', cost: 125000 },
+  { id: 'holiday', title: 'Holiday', icon: 'https://i.imgur.com/BDq6IiM.png', cost: 312000 }
+];
+
+function goToShop() {
+  goToScreen('shop-screen');
+  renderSkins();
+
+  // Correct IDs
+  document.getElementById('bottom-bar').style.display = 'none';
+  document.getElementById('settings-btn').style.display = 'none';
+  document.getElementById('shop-icon').style.display = 'none';
+}
+
+function renderSkins() {
+  const container = document.getElementById('skin-list');
+  container.innerHTML = '';
+
+  skins.forEach(skin => {
+    const bought = localStorage.getItem(`skinBought_${skin.id}`) === 'true';
+    const equipped = localStorage.getItem('equippedSkin') === skin.id;
+
+    const card = document.createElement('div');
+    card.className = 'skin-card';
+
+    const img = document.createElement('img');
+    img.src = skin.icon;
+    img.className = 'skin-icon';
+
+    const info = document.createElement('div');
+    info.className = 'skin-info';
+
+    const title = document.createElement('div');
+    title.className = 'skin-title';
+    title.textContent = skin.title;
+
+    const cost = document.createElement('div');
+    cost.className = 'skin-cost';
+    if (skin.cost > 0 && !bought) cost.textContent = `${skin.cost.toLocaleString()} $LIMO`;
+
+    const button = document.createElement('div');
+    button.className = 'skin-button';
+
+    if (equipped) {
+      button.textContent = 'Equipped';
+      button.classList.add('equipped');
+    } else if (bought || skin.cost === 0) {
+      button.textContent = 'Equip';
+      button.onclick = () => equipSkin(skin.id);
+    } else {
+      button.textContent = 'Buy';
+      button.onclick = () => buySkin(skin);
+    }
+
+    info.appendChild(title);
+    if (!bought) info.appendChild(cost);
+
+    card.appendChild(img);
+    card.appendChild(info);
+    card.appendChild(button);
+    container.appendChild(card);
+  });
+}
+
+function buySkin(skin) {
+  if (coins < skin.cost) return;
+
+  coins -= skin.cost;
+  updateCounter();
+  localStorage.setItem(`skinBought_${skin.id}`, 'true');
+  equipSkin(skin.id);
+
+  const float = document.createElement('div');
+  float.className = 'limo-float';
+  float.textContent = `-${skin.cost.toLocaleString()} $LIMO`;
+  float.style.left = '50%';
+  float.style.top = '50%';
+  float.style.transform = 'translateX(-50%)';
+  document.body.appendChild(float);
+  setTimeout(() => float.remove(), 1000);
+}
+
+function equipSkin(skinId) {
+  localStorage.setItem('equippedSkin', skinId);
+  renderSkins();
+  updateTapIcon();
+}
+
+function getEquippedSkinIcon() {
+  const equipped = localStorage.getItem('equippedSkin');
+  if (equipped && equipped !== 'default') {
+    const skin = skins.find(s => s.id === equipped);
+    return skin.icon;
+  }
+  return leagues[currentLeague].icon;
+}
+
+function updateTapIcon() {
+  const icon = getEquippedSkinIcon();
+  document.getElementById('tap-btn').style.backgroundImage = `url('${icon}')`;
+}
+  const dailyRewards = [
+  25000, 50000, 100000, 150000, 250000, 350000, 500000
+];
+
+let currentStreak = parseInt(localStorage.getItem('dailyStreak')) || 0;
+let lastClaimedDate = localStorage.getItem('lastClaimedDate') || null;
+
+function goToRewards() {
+  goToScreen('rewards-screen');
+
+  // Hide other UI elements
+  const navBar = document.getElementById('bottom-bar');
+  const settings = document.getElementById('settings-btn');
+  const shop = document.getElementById('shop-icon');
+  const rewards = document.getElementById('rewards-icon');
+
+  if (navBar) navBar.style.display = 'none';
+  if (settings) settings.style.display = 'none';
+  if (shop) shop.style.display = 'none';
+  if (rewards) rewards.style.display = 'none';
+
+  renderRewards(); // Call this to build the reward cubes
+}
+
+function renderRewards() {
+  const grid = document.getElementById('rewards-grid');
+  grid.innerHTML = '';
+  
+  const now = new Date();
+  const lastClaimed = lastClaimedDate ? new Date(lastClaimedDate) : null;
+  const canClaim = !lastClaimed || (now - lastClaimed >= 24 * 60 * 60 * 1000);
+
+  for (let i = 0; i < dailyRewards.length; i++) {
+    const cube = document.createElement('div');
+    cube.className = 'reward-cube';
+    
+    // Highlight current streak day
+    if (i === currentStreak) {
+      cube.style.borderColor = canClaim ? 'gold' : 'gray';
+    }
+
+    const emoji = document.createElement('img');
+    emoji.className = 'reward-emoji';
+    emoji.src = 'https://i.imgur.com/GCVqwNU.gif';
+    
+    const day = document.createElement('div');
+    day.className = 'reward-day';
+    day.textContent = `Day ${i+1}`;
+
+    const amount = document.createElement('div');
+    amount.className = 'reward-amount';
+    amount.textContent = `${dailyRewards[i].toLocaleString()} $LIMO`;
+
+    const btn = document.createElement('div');
+    
+    if (i < currentStreak) {
+      btn.className = 'reward-claim reward-claimed';
+      btn.textContent = 'Claimed';
+    } else if (i === currentStreak) {
+      if (canClaim) {
+        btn.className = 'reward-claim';
+        btn.textContent = 'Claim';
+        btn.onclick = () => claimReward(i);
+      } else {
+        btn.className = 'reward-claim reward-waiting';
+        btn.textContent = 'Wait ' + formatTimeRemaining(now - lastClaimed);
+      }
+    } else {
+      btn.className = 'reward-claim reward-waiting';
+      btn.textContent = 'Locked';
+    }
+
+    cube.appendChild(emoji);
+    cube.appendChild(day);
+    cube.appendChild(amount);
+    cube.appendChild(btn);
+    grid.appendChild(cube);
+  }
+}
+
+function formatTimeRemaining(elapsed) {
+  const remaining = 24 * 60 * 60 * 1000 - elapsed;
+  const hours = Math.floor(remaining / (60 * 60 * 1000));
+  const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+  return `${hours}h ${minutes}m`;
+}
+
+function claimReward(dayIndex) {
+  coins += dailyRewards[dayIndex];
+  currentStreak = (currentStreak + 1) % 7; // Reset after 7 days
+  lastClaimedDate = new Date().toISOString();
+  
+  localStorage.setItem('limocoins', coins);
+  localStorage.setItem('dailyStreak', currentStreak);
+  localStorage.setItem('lastClaimedDate', lastClaimedDate);
+  
+  updateCounter();
+  renderRewards();
+}
+function goToWalletScreen() {
+  // First hide all other UI elements
+  document.getElementById('bottom-bar').style.display = 'none';
+  document.getElementById('settings-btn').style.display = 'none';
+  document.getElementById('shop-icon').style.display = 'none';
+  document.getElementById('rewards-icon').style.display = 'none';
+  
+  // Then handle screen transition
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('wallet-screen').classList.add('active');
+}
+
+function closeWalletScreen() {
+  // Restore UI elements
+  document.getElementById('bottom-bar').style.display = 'flex';
+  document.getElementById('settings-btn').style.display = 'block';
+  document.getElementById('shop-icon').style.display = 'block';
+  document.getElementById('rewards-icon').style.display = 'block';
+  
+  // Return to airdrop screen
+  document.getElementById('wallet-screen').classList.remove('active');
+  document.getElementById('airdrop-screen').classList.add('active');
+}
+  </script> 
+ 
+</body></html>
